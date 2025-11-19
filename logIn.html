@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="logIn.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Salud+</div>
+        <nav>
+            <a href="../Home/index.html">HOME</a>
+            <a href="#">LOGIN</a>
+            <a href="../CreatePlan/createPlan.html">CREATE A PLAN</a>
+        </nav>
+    </header>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="form-wrapper">
+            <h1>Login</h1>
+            <div id="errorMessage" class="error-message"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" required>
+                        <button type="button" id="togglePassword" class="toggle-btn">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+
+            <p class="signup-link">Don't have an account? <a href="../CreateAccount/createAcc.html">Sign up here</a></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Salud+ — Empowering healthier lives.
+    </footer>
+
+    <script src="logIn.js"></script>
+</body>
+</html>
