@@ -4,12 +4,13 @@ Web application that focuses on non-medical, AI generated advice involving healt
 
 To run, git clone and run with VSCode Live Server extension.
 
-Make adjustment to `const GEMINI_API_KEY` in order to for AI post and fetch response. 
+For API calls:
+In your terminal run npm install, followed by npm start. Must have own API key and port in enviorne
 
 ~
-
-Considering adding API KEY env/config to store in alternate location 
--user creation and profile storage
+Considered additions: 
+-user account creation and profile storage
 
 
 keeping as is for demo purposes
+~

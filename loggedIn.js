@@ -1,66 +1,35 @@
-// Google Gemini API Configuration
-// Get your API key from: https://ai.google.dev/
-const GEMINI_API_KEY = "YOUR GEMINI API KEY HERE"; // Replace with your actual API key
-
 // ---------------------------
-// CALL GOOGLE GEMINI API
+// CALL BACKEND API FOR GEMINI
 // ---------------------------
 async function generateAIResponse(userData) {
     const output = document.getElementById("aiOutput");
     output.innerHTML = "<p style='color: #2e8b57;'>🔄 Generating your personalized health guidance...</p>";
 
     try {
-        const prompt = `You are a friendly health and wellness advisor (NOT a medical doctor). Based on the following user information, provide personalized, non-medical but science-based health and wellness suggestions.
+        console.log("Making request to backend API...");
 
-User Health Information:
-- Full Name: ${userData.name}
-- Age: ${userData.age}
-- Weight: ${userData.weight}
-- Height: ${userData.height}
-- Existing Conditions: ${userData.conditions.length > 0 ? userData.conditions.join(", ") : "None selected"}
-${userData.otherCondition ? "- Other Condition: " + userData.otherCondition : ""}
-${userData.additionalInfo ? "- Additional Notes: " + userData.additionalInfo : ""}
-
-Please provide friendly wellness suggestions in these areas:
-1. **General Wellness Overview** - What positive health habits to focus on
-2. **Lifestyle Recommendations** - Daily habits and activities to consider
-3. **Nutrition Tips** - Simple, general dietary guidance (not medical advice)
-4. **Physical Activity Suggestions** - Exercise ideas suited to the person's profile
-5. **Stress Management** - Relaxation and mindfulness tips
-6. **When to Consult a Professional** - General guidance on seeing a healthcare provider
-
-Keep the tone friendly, encouraging, and supportive. Focus on general wellness, not medical diagnosis or treatment.`;
-
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-        
-        console.log("Making API request to:", url);
-
-        const response = await fetch(url, {
+        const response = await fetch("http://localhost:3000/api/generateHealth", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }]
+                userData: userData
             })
         });
 
         console.log("Response status:", response.status);
 
         if (!response.ok) {
-            const errorData = await response.text();
+            const errorData = await response.json();
             console.error("Error response:", errorData);
-            throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+            throw new Error(errorData.error || `API Error: ${response.status}`);
         }
 
         const data = await response.json();
 
-        if (data.candidates && data.candidates.length > 0) {
-            const aiResponse = data.candidates[0].content.parts[0].text;
+        if (data.success && data.response) {
+            const aiResponse = data.response;
             output.innerHTML = `<div style='text-align: left; line-height: 1.6;'>${aiResponse.replace(/\n/g, '<br>')}</div>`;
             
             // Save to history
@@ -70,7 +39,7 @@ Keep the tone friendly, encouraging, and supportive. Focus on general wellness, 
         }
     } catch (err) {
         console.error("Error:", err);
-        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Check browser console for details. Make sure your Gemini API key is valid and the API is enabled.</p>`;
+        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Make sure the backend server is running (npm start or npm run dev)</p>`;
     }
 }
 
@@ -82,6 +51,8 @@ document.getElementById("planForm").addEventListener("submit", async function (e
 
     try {
         const userData = {
+            name: document.getElementById("name").value.trim(),
+            age: document.getElementById("age").value,
             weight: document.getElementById("weight").value,
             height: document.getElementById("height").value,
             conditions: Array.from(document.querySelectorAll('input[name="condition[]"]:checked'))
@@ -90,9 +61,9 @@ document.getElementById("planForm").addEventListener("submit", async function (e
             additionalInfo: document.getElementById("additionalInfo").value.trim()
         };
 
-        // Validate that at least some data is filled
-        if (!userData.weight || !userData.height) {
-            alert("Please fill in weight and height fields.");
+        // Validate that required fields are filled
+        if (!userData.name || !userData.age || !userData.weight || !userData.height) {
+            alert("Please fill in name, age, weight, and height fields.");
             return;
         }
 
