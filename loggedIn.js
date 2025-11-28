@@ -8,7 +8,7 @@ async function generateAIResponse(userData, endpoint = '/api/generateHealth') {
     try {
         console.log(`Making request to ${endpoint}...`);
 
-        const response = await fetch(`http://localhost:3000${endpoint}`, {
+        const response = await fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -42,7 +42,7 @@ async function generateAIResponse(userData, endpoint = '/api/generateHealth') {
         }
     } catch (err) {
         console.error("Error:", err);
-        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Make sure both Salud-Plus (port 3000) and AIrep (port 3001) servers are running</p>`;
+        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Make sure both Salud-Plus (port 3000) and SaludPlusAPI (port 3001) servers are running</p>`;
     }
 }
 
