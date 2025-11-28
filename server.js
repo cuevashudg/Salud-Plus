@@ -6,86 +6,134 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// Validate API key on startup
-if (!GEMINI_API_KEY) {
-    console.error('ERROR: GEMINI_API_KEY is not set in .env file');
-    process.exit(1);
-}
+// ---------------------------
+// API ENDPOINT - PROXY TO AIREP
+// ---------------------------
+const AIREP_BASE_URL = process.env.AIREP_URL || 'http://localhost:3001';
 
-// ---------------------------
-// API ENDPOINT FOR GEMINI
-// ---------------------------
+// Health Guidance - Forward to AIrep
 app.post('/api/generateHealth', async (req, res) => {
     try {
         const { userData } = req.body;
 
         if (!userData) {
-            return res.status(400).json({ error: 'Missing userData' });
+            return res.status(400).json({ success: false, error: 'Missing userData' });
         }
 
-        const prompt = `You are a friendly health and wellness advisor (NOT a medical doctor). Based on the following user information, provide personalized, non-medical but science-based health and wellness suggestions.
+        console.log('Forwarding health request to AIrep...');
 
-User Health Information:
-- Full Name: ${userData.name}
-- Age: ${userData.age}
-- Weight: ${userData.weight}
-- Height: ${userData.height}
-- Existing Conditions: ${userData.conditions.length > 0 ? userData.conditions.join(", ") : "None selected"}
-${userData.otherCondition ? "- Other Condition: " + userData.otherCondition : ""}
-${userData.additionalInfo ? "- Additional Notes: " + userData.additionalInfo : ""}
-
-Please provide friendly wellness suggestions in these areas:
-1. **General Wellness Overview** - What positive health habits to focus on
-2. **Lifestyle Recommendations** - Daily habits and activities to consider
-3. **Nutrition Tips** - Simple, general dietary guidance (not medical advice)
-4. **Physical Activity Suggestions** - Exercise ideas suited to the person's profile
-5. **Stress Management** - Relaxation and mindfulness tips
-6. **When to Consult a Professional** - General guidance on seeing a healthcare provider
-
-Keep the tone friendly, encouraging, and supportive. Focus on general wellness, not medical diagnosis or treatment.`;
-
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-        const response = await fetch(url, {
-            method: "POST",
+        const response = await fetch(`${AIREP_BASE_URL}/api/generateHealth`, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }]
-            })
+            body: JSON.stringify({ userData })
         });
 
         if (!response.ok) {
-            const errorData = await response.text();
-            console.error("Gemini API error:", errorData);
+            const errorData = await response.json();
+            console.error('AIrep error:', errorData);
             return res.status(response.status).json({ 
-                error: `API Error: ${response.status} - ${response.statusText}` 
+                success: false,
+                error: errorData.error || `AIrep Error: ${response.status}` 
             });
         }
 
         const data = await response.json();
+        res.json(data);
 
-        if (data.candidates && data.candidates.length > 0) {
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            return res.json({ success: true, response: aiResponse });
-        } else {
-            return res.status(400).json({ error: 'No response generated from API' });
-        }
     } catch (err) {
-        console.error("Server error:", err);
-        res.status(500).json({ error: `Server error: ${err.message}` });
+        console.error("Proxy error:", err);
+        res.status(503).json({ 
+            success: false,
+            error: `Service unavailable: ${err.message}. Make sure AIrep is running on ${AIREP_BASE_URL}` 
+        });
+    }
+});
+
+// Workout Recommendations - Forward to AIrep
+app.post('/api/generateWorkout', async (req, res) => {
+    try {
+        const { userData } = req.body;
+
+        if (!userData) {
+            return res.status(400).json({ success: false, error: 'Missing userData' });
+        }
+
+        console.log('Forwarding workout request to AIrep...');
+
+        const response = await fetch(`${AIREP_BASE_URL}/api/generateWorkout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userData })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('AIrep error:', errorData);
+            return res.status(response.status).json({ 
+                success: false,
+                error: errorData.error || `AIrep Error: ${response.status}` 
+            });
+        }
+
+        const data = await response.json();
+        res.json(data);
+
+    } catch (err) {
+        console.error("Proxy error:", err);
+        res.status(503).json({ 
+            success: false,
+            error: `Service unavailable: ${err.message}. Make sure AIrep is running on ${AIREP_BASE_URL}` 
+        });
+    }
+});
+
+// Nutrition Advice - Forward to AIrep
+app.post('/api/generateNutrition', async (req, res) => {
+    try {
+        const { userData } = req.body;
+
+        if (!userData) {
+            return res.status(400).json({ success: false, error: 'Missing userData' });
+        }
+
+        console.log('Forwarding nutrition request to AIrep...');
+
+        const response = await fetch(`${AIREP_BASE_URL}/api/generateNutrition`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userData })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('AIrep error:', errorData);
+            return res.status(response.status).json({ 
+                success: false,
+                error: errorData.error || `AIrep Error: ${response.status}` 
+            });
+        }
+
+        const data = await response.json();
+        res.json(data);
+
+    } catch (err) {
+        console.error("Proxy error:", err);
+        res.status(503).json({ 
+            success: false,
+            error: `Service unavailable: ${err.message}. Make sure AIrep is running on ${AIREP_BASE_URL}` 
+        });
     }
 });
 

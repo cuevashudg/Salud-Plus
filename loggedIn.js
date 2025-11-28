@@ -1,14 +1,14 @@
 // ---------------------------
-// CALL BACKEND API FOR GEMINI
+// CALL BACKEND API FOR AI SERVICES
 // ---------------------------
-async function generateAIResponse(userData) {
+async function generateAIResponse(userData, endpoint = '/api/generateHealth') {
     const output = document.getElementById("aiOutput");
-    output.innerHTML = "<p style='color: #2e8b57;'>🔄 Generating your personalized health guidance...</p>";
+    output.innerHTML = "<p style='color: #2e8b57;'>🔄 Generating your personalized guidance...</p>";
 
     try {
-        console.log("Making request to backend API...");
+        console.log(`Making request to ${endpoint}...`);
 
-        const response = await fetch("http://localhost:3000/api/generateHealth", {
+        const response = await fetch(`http://localhost:3000${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -30,16 +30,19 @@ async function generateAIResponse(userData) {
 
         if (data.success && data.response) {
             const aiResponse = data.response;
-            output.innerHTML = `<div style='text-align: left; line-height: 1.6;'>${aiResponse.replace(/\n/g, '<br>')}</div>`;
             
             // Save to history
             saveToHistory(userData, aiResponse);
+            
+            // Store response in sessionStorage and redirect to results page
+            sessionStorage.setItem("aiResponse", aiResponse);
+            window.location.href = "results.html";
         } else {
             output.innerHTML = "<p style='color: #d9534f;'>❌ No response generated. Please try again.</p>";
         }
     } catch (err) {
         console.error("Error:", err);
-        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Make sure the backend server is running (npm start or npm run dev)</p>`;
+        output.innerHTML = `<p style='color: #d9534f;'>❌ Error generating guidance: ${err.message}</p><p style='font-size: 12px; color: #666;'>Make sure both Salud-Plus (port 3000) and AIrep (port 3001) servers are running</p>`;
     }
 }
 
