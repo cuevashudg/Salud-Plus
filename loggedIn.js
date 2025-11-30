@@ -78,6 +78,9 @@ function updateFieldErrors(errors) {
             errorMsg.textContent = errors[key];
             field.parentElement.insertBefore(errorMsg, field.nextSibling);
         }
+    });
+}
+
 function showLoadingState(show = true) {
     const submitBtn = document.querySelector('.cta-btn');
     const aiOutput = document.getElementById('aiOutput');

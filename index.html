@@ -13,6 +13,12 @@
         <nav>
             <a href="index.html">HOME</a>
             <a href="LoggedIn.html">CREATE A PLAN</a>
+            <a href="auth.html" id="authLink">SIGN IN / REGISTER</a>
+            <a href="profile.html" id="profileLink" style="display: none;">MY PROFILE</a>
+            <a href="dashboard.html" id="dashboardLink" style="display: none;">DASHBOARD</a>
+            <a href="#" id="logoutLink" style="color: #d9534f; display: none;">LOGOUT</a>
+        </nav>
+    </header>
         </nav>
     </header>
 
@@ -21,7 +27,10 @@
         <div class="hero-text">
             <h1>Your Path to Better Health Starts Today</h1>
             <p>Create personalized wellness plans, track your progress, and take control of your health journey with our intuitive and science-backed platform.</p>
-            <a href="LoggedIn.html" class="cta-btn">Start Your Plan</a>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a href="../../auth.html" class="cta-btn">Sign In / Register</a>
+                <a href="LoggedIn.html" class="cta-btn" style="background-color: #4a90e2;">Create a Plan</a>
+            </div>
         </div>
     </section>
 
@@ -51,5 +60,27 @@
     <footer>
         © 2025 Salud+ — Empowering healthier lives.
     </footer>
+
+    <script src="auth-utils.js"></script>
+    <script>
+        // Show/hide nav links based on login state
+        document.addEventListener('DOMContentLoaded', () => {
+            const authLink = document.getElementById('authLink');
+            const profileLink = document.getElementById('profileLink');
+            const dashboardLink = document.getElementById('dashboardLink');
+            const logoutLink = document.getElementById('logoutLink');
+
+            if (isUserLoggedIn()) {
+                authLink.style.display = 'none';
+                profileLink.style.display = 'inline';
+                dashboardLink.style.display = 'inline';
+                logoutLink.style.display = 'inline';
+                logoutLink.onclick = (e) => {
+                    e.preventDefault();
+                    logout();
+                };
+            }
+        });
+    </script>
 </body>
 </html>
