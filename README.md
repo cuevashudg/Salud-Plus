@@ -281,7 +281,7 @@ This project requires [SaludPlusAPI](https://github.com/cuevashudg/SaludPlusAPI)
 - Advanced health metrics tracking
 - Integration with fitness tracking devices
 - Meal planning with recipes
-- Workout video demonstrations
+- Integrating a photo input option
 
 ## 📝 Notes
 
