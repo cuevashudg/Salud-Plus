@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Dashboard - Salud+</title>
+    <link rel="stylesheet" href="loggedIn.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Salud+</div>
+        <nav>
+            <a href="index.html">HOME</a>
+            <a href="LoggedIn.html">CREATE PLAN</a>
+            <a href="profile.html">MY PROFILE</a>
+            <a href="dashboard.html">DASHBOARD</a>
+            <a href="#" id="logoutLink" style="color: #d9534f; display: none;">LOGOUT</a>
+        </nav>
+    </header>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard-section">
+        <h1>Health Dashboard</h1>
+        
+        <div class="dashboard-controls">
+            <div class="date-filter-container">
+                <label for="dateFilter">Filter by Date:</label>
+                <input type="date" id="dateFilter" />
+                <button id="clearDateBtn" class="filter-btn">Clear Filter</button>
+            </div>
+        </div>
+
+        <div class="dashboard-timeline">
+            <div id="entriesList">
+                <p style="color: #999; text-align: center; grid-column: 1 / -1;">No entries found. Create a health plan to get started!</p>
+            </div>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="LoggedIn.html" class="cta-btn">Create New Plan</a>
+            <a href="profile.html" class="cta-btn" style="background-color: #4a90e2;">View Profile</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Salud+ — Empowering healthier lives.
+    </footer>
+
+    <script src="auth-utils.js"></script>
+    <script>
+        // Show logout link if user is logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutLink = document.getElementById('logoutLink');
+            if (!isUserLoggedIn()) {
+                window.location.href = 'auth.html';
+            }
+            logoutLink.style.display = 'inline';
+            logoutLink.onclick = (e) => {
+                e.preventDefault();
+                logout();
+            };
+        });
+    </script>
+    <script type="module" src="dashboard.js"></script>
+
+</body>
+</html>

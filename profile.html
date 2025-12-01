@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - Salud+</title>
+    <link rel="stylesheet" href="loggedIn.css" />
+    <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Salud+</div>
+        <nav>
+            <a href="index.html">HOME</a>
+            <a href="LoggedIn.html">CREATE PLAN</a>
+            <a href="profile.html">MY PROFILE</a>
+            <a href="dashboard.html">DASHBOARD</a>
+            <a href="#" id="logoutLink" style="color: #d9534f; display: none;">LOGOUT</a>
+        </nav>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="create-plan profile-section">
+        <h1>My Health Profile</h1>
+        
+        <div class="profile-info-container">
+            <div id="profileContent">
+                <p style="color: #999; text-align: center;">No profile data found. Create a health plan to get started!</p>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="LoggedIn.html" class="cta-btn">Create New Plan</a>
+            <a href="dashboard.html" class="cta-btn" style="background-color: #4a90e2;">Go to Dashboard</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Salud+ — Empowering healthier lives.
+    </footer>
+
+    <script src="auth-utils.js"></script>
+    <script>
+        // Show logout link if user is logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutLink = document.getElementById('logoutLink');
+            if (!isUserLoggedIn()) {
+                window.location.href = 'auth.html';
+            }
+            logoutLink.style.display = 'inline';
+            logoutLink.onclick = (e) => {
+                e.preventDefault();
+                logout();
+            };
+        });
+    </script>
+    <script type="module" src="profile.js"></script>
+
+</body>
+</html>

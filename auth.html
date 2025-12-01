@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salud+ - Authentication</title>
+    <link rel="stylesheet" href="loggedIn.css" />
+    <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Salud+</div>
+        <nav>
+            <a href="index.html">HOME</a>
+        </nav>
+    </header>
+
+    <!-- Auth Container -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form active">
+                <h1>Create Your Account</h1>
+                <p class="auth-subtitle">Join Salud+ to save your health plans</p>
+                
+                <form id="signupFormElement" onsubmit="handleSignup(event)">
+                    <div class="form-field">
+                        <label for="signupEmail">Email Address:</label>
+                        <input type="email" id="signupEmail" name="email" required />
+                        <span class="field-error" id="emailError"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="signupPassword">Password:</label>
+                        <input type="password" id="signupPassword" name="password" required />
+                        <span class="field-error" id="passwordError"></span>
+                        <div class="password-requirements">
+                            <p>Password must contain:</p>
+                            <ul>
+                                <li id="req-length" class="requirement">At least 8 characters</li>
+                                <li id="req-uppercase" class="requirement">At least one uppercase letter</li>
+                                <li id="req-lowercase" class="requirement">At least one lowercase letter</li>
+                                <li id="req-number" class="requirement">At least one number</li>
+                                <li id="req-special" class="requirement">At least one special character (!@#$%^&*)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="signupConfirmPassword">Confirm Password:</label>
+                        <input type="password" id="signupConfirmPassword" name="confirmPassword" required />
+                        <span class="field-error" id="confirmPasswordError"></span>
+                    </div>
+
+                    <button type="submit" class="cta-btn" style="width: 100%; margin-top: 10px;">Create Account</button>
+                    <p class="auth-toggle-text">Already have an account? <a href="#" onclick="toggleForm(event)">Sign In</a></p>
+                </form>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h1>Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to access your health profile</p>
+                
+                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                    <div class="form-field">
+                        <label for="loginEmail">Email Address:</label>
+                        <input type="email" id="loginEmail" name="email" required />
+                        <span class="field-error" id="loginEmailError"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" name="password" required />
+                        <span class="field-error" id="loginPasswordError"></span>
+                    </div>
+
+                    <button type="submit" class="cta-btn" style="width: 100%; margin-top: 10px;">Sign In</button>
+                    <p class="auth-toggle-text">Don't have an account? <a href="#" onclick="toggleForm(event)">Create One</a></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Salud+ — Empowering healthier lives.
+    </footer>
+
+    <script src="auth.js"></script>
+
+</body>
+</html>
