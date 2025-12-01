@@ -89,7 +89,7 @@ function showLoadingState(show = true) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Generating Plan...';
         
-        // Multi-stage loading experience
+        // Multi-stage loading experience with progress
         const stages = [
             { icon: '🔍', text: 'Analyzing your health profile...', duration: 2000 },
             { icon: '🤖', text: 'Consulting Gemini AI for recommendations...', duration: 5000 },
@@ -97,19 +97,24 @@ function showLoadingState(show = true) {
         ];
         
         let stageIndex = 0;
+        const estimatedTotal = stages.reduce((sum, s) => sum + s.duration, 0);
+        
         const updateStage = () => {
             if (stageIndex < stages.length) {
                 const stage = stages[stageIndex];
-                const estimatedTotal = stages.reduce((sum, s) => sum + s.duration, 0);
                 const elapsed = stages.slice(0, stageIndex).reduce((sum, s) => sum + s.duration, 0);
                 const remaining = Math.ceil((estimatedTotal - elapsed) / 1000);
+                const progressPercent = Math.round((elapsed / estimatedTotal) * 100);
                 
                 aiOutput.innerHTML = `
                     <div class="loading-container">
                         <div class="spinner"></div>
                         <p style="font-size: 18px; margin: 10px 0;">${stage.icon}</p>
                         <p>${stage.text}</p>
-                        <p style="font-size: 12px; color: #666;">⏱️ About ${remaining}s remaining...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p style="font-size: 12px; color: #666;">⏱️ About ${remaining}s remaining... (${progressPercent}%)</p>
                     </div>
                 `;
                 stageIndex++;

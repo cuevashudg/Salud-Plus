@@ -403,17 +403,18 @@ footer {
 /* Results Action Buttons */
 .results-action-buttons {
 	display: flex;
-	gap: 10px;
+	gap: 12px;
 	justify-content: center;
 	flex-wrap: wrap;
-	margin: 20px 0;
-	padding: 20px;
-	background: #f5faf8;
+	margin: 30px 0;
+	padding: 25px;
+	background: linear-gradient(135deg, #f5faf8 0%, #e8f1ed 100%);
+	border: 2px solid #2e8b57;
 	border-radius: 8px;
 }
 
 .results-btn {
-	padding: 10px 18px;
+	padding: 12px 20px;
 	border: 1px solid #dfeee6;
 	border-radius: 6px;
 	font-size: 14px;
@@ -421,6 +422,10 @@ footer {
 	cursor: pointer;
 	transition: 0.2s;
 	white-space: nowrap;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .results-btn-primary {
@@ -432,10 +437,92 @@ footer {
 .results-btn-primary:hover {
 	background-color: #1f4d3a;
 	border-color: #1f4d3a;
-	box-shadow: 0 2px 6px rgba(46, 139, 87, 0.2);
+	box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+	transform: translateY(-2px);
 }
 
 .results-btn-primary:active {
 	transform: scale(0.98);
+}
+
+/* Progress bar styling */
+.progress-bar {
+	width: 100%;
+	height: 4px;
+	background-color: #e8f1ed;
+	border-radius: 2px;
+	overflow: hidden;
+	margin: 15px 0;
+}
+
+.progress-fill {
+	height: 100%;
+	background-color: #2e8b57;
+	border-radius: 2px;
+	transition: width 0.5s ease;
+	animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.8; }
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 768px) {
+	header {
+		padding: 15px 20px;
+	}
+
+	header .logo {
+		font-size: 24px;
+	}
+
+	nav a {
+		margin-left: 12px;
+		font-size: 13px;
+	}
+
+	.create-plan {
+		margin: 20px auto;
+		padding: 20px 16px;
+	}
+
+	.create-plan h1 {
+		font-size: 24px;
+	}
+
+	.weight-input-group,
+	.height-input-group {
+		flex-direction: column;
+	}
+
+	.weight-toggle-btn,
+	.height-toggle-btn {
+		width: 100%;
+		font-size: 12px;
+	}
+
+	.dropdown-options {
+		max-height: 200px;
+	}
+
+	.results-action-buttons {
+		flex-direction: column;
+		gap: 12px;
+		margin: 20px 0;
+		padding: 16px;
+	}
+
+	.results-btn {
+		width: 100%;
+		padding: 14px 16px;
+		font-size: 13px;
+	}
+
+	.cta-btn {
+		width: 100%;
+		padding: 14px 16px !important;
+	}
 }
 
