@@ -220,12 +220,11 @@ async function generateAIResponse(userData, endpoint = '/api/generateHealth') {
         if (data.success && data.response) {
             const aiResponse = data.response;
             
-            // Save to history
+            // Save to history (localStorage for backward compatibility)
             saveToHistory(userData, aiResponse);
             
-            // Store response in sessionStorage and redirect to results page
-            sessionStorage.setItem("aiResponse", aiResponse);
-            window.location.href = "results.html";
+            // ALSO save to backend database
+            await savePlanToBackend(userData, aiResponse, endpoint);
         } else {
             showErrorMessage('No response generated. Please try again.');
         }
@@ -234,6 +233,74 @@ async function generateAIResponse(userData, endpoint = '/api/generateHealth') {
         showErrorMessage(err.message);
     } finally {
         showLoadingState(false);
+    }
+}
+
+// ---------------------------
+// SAVE PLAN TO BACKEND DATABASE
+// ---------------------------
+async function savePlanToBackend(userData, aiResponse, endpoint) {
+    try {
+        const token = getJWT();
+        
+        // Check if user is authenticated
+        if (!token) {
+            console.warn('User not authenticated with JWT. Plan saved locally only.');
+            // Show message and redirect to results.html (local-only mode)
+            sessionStorage.setItem("aiResponse", aiResponse);
+            window.location.href = "results.html";
+            return;
+        }
+
+        // Determine plan type from endpoint
+        let planType = 'health';
+        if (endpoint.includes('Workout')) planType = 'workout';
+        if (endpoint.includes('Nutrition')) planType = 'nutrition';
+
+        const response = await fetch('/api/plans', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                planType: planType,
+                userInput: userData,
+                aiResponse: aiResponse
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error saving plan to backend:', errorData);
+            
+            // If auth error, redirect to login
+            if (response.status === 401) {
+                localStorage.removeItem('salud_jwt_token');
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // For other errors, continue with local storage
+            console.warn('Could not save plan to database. Plan saved locally only.');
+            sessionStorage.setItem("aiResponse", aiResponse);
+            window.location.href = "results.html";
+            return;
+        }
+
+        const data = await response.json();
+        const planId = data.plan._id;
+
+        // Redirect to plan details page instead of results.html
+        window.location.href = `plan-details.html?planId=${planId}`;
+
+    } catch (err) {
+        console.error('Error saving plan to backend:', err);
+        console.warn('Could not save plan to database. Plan saved locally only.');
+        
+        // Fallback to local storage and results page
+        sessionStorage.setItem("aiResponse", aiResponse);
+        window.location.href = "results.html";
     }
 }
 

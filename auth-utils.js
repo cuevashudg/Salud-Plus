@@ -22,11 +22,7 @@ function checkAuthentication() {
 }
 
 function logout() {
-    localStorage.removeItem('salud_currentUser');
-    localStorage.removeItem('salud_sessionToken');
-    // Clear profile data when logging out (optional - comment out to keep data)
-    // localStorage.removeItem('userProfile');
-    // localStorage.removeItem('planHistory');
+    clearAllAuthData();
     window.location.href = 'auth.html';
 }
 
