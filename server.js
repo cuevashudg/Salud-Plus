@@ -6,6 +6,25 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SALUD_PLUS_API_URL = process.env.AIREP_URL || 'http://localhost:3001';
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Validate environment on startup
+function validateEnvironment() {
+    if (isNaN(parseInt(PORT))) {
+        console.error(`ERROR: Invalid PORT: ${PORT}`);
+        process.exit(1);
+    }
+    try {
+        new URL(SALUD_PLUS_API_URL);
+    } catch (err) {
+        console.error(`ERROR: Invalid AIREP_URL: ${SALUD_PLUS_API_URL}`);
+        process.exit(1);
+    }
+    console.log(`✅ Environment validated (${NODE_ENV})`);
+}
+
+validateEnvironment();
 
 // Middleware
 app.use(cors());
@@ -13,12 +32,9 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // ---------------------------
-// API ENDPOINT - PROXY TO SALUDPLUSAPI
+// PROXY UTILITY FUNCTION
 // ---------------------------
-const AIREP_BASE_URL = process.env.AIREP_URL || 'http://localhost:3001';
-
-// Health Guidance - Forward to SaludPlusAPI
-app.post('/api/generateHealth', async (req, res) => {
+async function proxyToSaludPlusAPI(req, res, endpoint) {
     try {
         const { userData } = req.body;
 
@@ -26,119 +42,84 @@ app.post('/api/generateHealth', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing userData' });
         }
 
-        console.log('Forwarding health request to SaludPlusAPI...');
+        console.log(`Forwarding ${endpoint} request to SaludPlusAPI...`);
 
-        const response = await fetch(`${AIREP_BASE_URL}/api/generateHealth`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userData })
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 35000); // 35 second timeout (give SaludPlusAPI buffer)
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('SaludPlusAPI error:', errorData);
-            return res.status(response.status).json({ 
-                success: false,
-                error: errorData.error || `SaludPlusAPI Error: ${response.status}` 
+        try {
+            const response = await fetch(`${SALUD_PLUS_API_URL}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userData }),
+                signal: controller.signal
             });
-        }
 
-        const data = await response.json();
-        res.json(data);
+            clearTimeout(timeout);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('SaludPlusAPI error:', errorData);
+                return res.status(response.status).json({ 
+                    success: false,
+                    error: errorData.error || `SaludPlusAPI Error: ${response.status}` 
+                });
+            }
+
+            const data = await response.json();
+            res.json(data);
+
+        } catch (err) {
+            clearTimeout(timeout);
+            if (err.name === 'AbortError') {
+                console.error("Backend request timeout");
+                return res.status(503).json({ 
+                    success: false,
+                    error: 'Backend request timeout. Service is taking too long to respond.'
+                });
+            }
+            throw err;
+        }
 
     } catch (err) {
         console.error("Proxy error:", err);
         res.status(503).json({ 
             success: false,
-            error: `Service unavailable: ${err.message}. Make sure SaludPlusAPI is running on ${AIREP_BASE_URL}` 
+            error: `Service unavailable: ${err.message}. Make sure SaludPlusAPI is running on ${SALUD_PLUS_API_URL}` 
         });
     }
-});
+}
 
-// Workout Recommendations - Forward to SaludPlusAPI
-app.post('/api/generateWorkout', async (req, res) => {
+// ---------------------------
+// API ENDPOINTS - PROXY TO SALUDPLUSAPI
+// ---------------------------
+app.post('/api/generateHealth', (req, res) => proxyToSaludPlusAPI(req, res, '/api/generateHealth'));
+app.post('/api/generateWorkout', (req, res) => proxyToSaludPlusAPI(req, res, '/api/generateWorkout'));
+app.post('/api/generateNutrition', (req, res) => proxyToSaludPlusAPI(req, res, '/api/generateNutrition'));
+
+// ---------------------------
+// HEALTH CHECK PASS-THROUGH
+// ---------------------------
+app.get('/health', async (req, res) => {
     try {
-        const { userData } = req.body;
-
-        if (!userData) {
-            return res.status(400).json({ success: false, error: 'Missing userData' });
-        }
-
-        console.log('Forwarding workout request to SaludPlusAPI...');
-
-        const response = await fetch(`${AIREP_BASE_URL}/api/generateWorkout`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userData })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('SaludPlusAPI error:', errorData);
-            return res.status(response.status).json({ 
-                success: false,
-                error: errorData.error || `SaludPlusAPI Error: ${response.status}` 
-            });
-        }
-
+        const response = await fetch(`${SALUD_PLUS_API_URL}/health`);
         const data = await response.json();
         res.json(data);
-
     } catch (err) {
-        console.error("Proxy error:", err);
         res.status(503).json({ 
-            success: false,
-            error: `Service unavailable: ${err.message}. Make sure SaludPlusAPI is running on ${AIREP_BASE_URL}` 
+            status: 'error',
+            service: 'Salud-Plus Proxy',
+            error: 'SaludPlusAPI is unavailable'
         });
     }
 });
 
-// Nutrition Advice - Forward to SaludPlusAPI
-app.post('/api/generateNutrition', async (req, res) => {
-    try {
-        const { userData } = req.body;
-
-        if (!userData) {
-            return res.status(400).json({ success: false, error: 'Missing userData' });
-        }
-
-        console.log('Forwarding nutrition request to SaludPlusAPI...');
-
-        const response = await fetch(`${AIREP_BASE_URL}/api/generateNutrition`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userData })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('SaludPlusAPI error:', errorData);
-            return res.status(response.status).json({ 
-                success: false,
-                error: errorData.error || `SaludPlusAPI Error: ${response.status}` 
-            });
-        }
-
-        const data = await response.json();
-        res.json(data);
-
-    } catch (err) {
-        console.error("Proxy error:", err);
-        res.status(503).json({ 
-            success: false,
-            error: `Service unavailable: ${err.message}. Make sure SaludPlusAPI is running on ${AIREP_BASE_URL}` 
-        });
-    }
-});
-
-// Start server
+// ---------------------------
+// START SERVER
+// ---------------------------
 app.listen(PORT, () => {
     console.log(`✅ Salud+ server running on http://localhost:${PORT}`);
-    console.log(`📝 Make sure SaludPlusAPI service is also running on port 3001`);
+    console.log(`📝 Configured to forward requests to SaludPlusAPI at ${SALUD_PLUS_API_URL}`);
 });

@@ -279,7 +279,9 @@ This project requires [SaludPlusAPI](https://github.com/cuevashudg/SaludPlusAPI)
 - Persistent user profiles and plan history
 - Database integration for saving plans
 - Advanced health metrics tracking
-- Photo input option
+- Integration with fitness tracking devices
+- Meal planning with recipes
+- Integrating a photo input option
 
 ## 📝 Notes
 
